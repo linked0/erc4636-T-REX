@@ -49,6 +49,23 @@ describe('IdentityRegistry', () => {
         );
       });
     });
+    describe('when sender is an agent', () => {
+      it('should update', async () => {
+        const {
+          suite: { identityRegistry, agentManager },
+          accounts: { deployer, tokenAdmin, aliceWallet, bobWallet, anotherWallet },
+          identities: { aliceIdentity, bobIdentity, charlieIdentity },
+        } = await loadFixture(deployFullSuiteFixture);
+
+        await agentManager.connect(tokenAdmin).addWhiteListManager(aliceIdentity.address);
+
+        const updateTx = await agentManager
+          .connect(aliceWallet)
+          .callUpdateIdentity(bobWallet.address, charlieIdentity.address, aliceIdentity.address);
+
+        await expect(updateTx).to.emit(identityRegistry, 'IdentityUpdated').withArgs(bobIdentity.address, charlieIdentity.address);
+      });
+    });
   });
 
   describe('.updateCountry()', () => {
@@ -196,6 +213,24 @@ describe('IdentityRegistry', () => {
 
         const topics = await claimTopicsRegistry.getClaimTopics();
         await Promise.all(topics.map((topic) => claimTopicsRegistry.removeClaimTopic(topic)));
+
+        await expect(identityRegistry.isVerified(charlieWallet.address)).to.eventually.be.true;
+      });
+      it('should return true when a claim is registered', async () => {
+        const {
+          suite: { identityRegistry, claimTopicsRegistry },
+          accounts: { tokenAgent, charlieWallet },
+          identities: { charlieIdentity },
+          jay: { claimForCharlie },
+        } = await loadFixture(deployFullSuiteFixture);
+
+        await identityRegistry.connect(tokenAgent).registerIdentity(charlieWallet.address, charlieIdentity.address, 0);
+
+        await expect(identityRegistry.isVerified(charlieWallet.address)).to.eventually.be.false;
+
+        await charlieIdentity
+        .connect(charlieWallet)
+        .addClaim(claimForCharlie.topic, claimForCharlie.scheme, claimForCharlie.issuer, claimForCharlie.signature, claimForCharlie.data, '');
 
         await expect(identityRegistry.isVerified(charlieWallet.address)).to.eventually.be.true;
       });

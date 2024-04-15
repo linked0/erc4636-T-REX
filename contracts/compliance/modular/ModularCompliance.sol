@@ -67,6 +67,7 @@ import "../../token/IToken.sol";
 import "./IModularCompliance.sol";
 import "./MCStorage.sol";
 import "./modules/IModule.sol";
+import "hardhat/console.sol";
 
 
 contract ModularCompliance is IModularCompliance, OwnableUpgradeable, MCStorage {
@@ -244,6 +245,7 @@ contract ModularCompliance is IModularCompliance, OwnableUpgradeable, MCStorage 
      */
     function canTransfer(address _from, address _to, uint256 _value) external view override returns (bool) {
         uint256 length = _modules.length;
+        console.log("### modules length", length);
         for (uint256 i = 0; i < length; i++) {
             if (!IModule(_modules[i]).moduleCheck(_from, _to, _value, address(this))) {
                 return false;

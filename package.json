@@ -23,6 +23,8 @@
     "flatten": "node scripts/flatten.js",
     "coverage": "hardhat coverage",
     "test": "hardhat test",
+    "test:tr": "hardhat test test/token/token-transfer.test.ts",
+    "test:id": "hardhat test test/registries/identity-registry.test.ts",
     "lint:ts": "eslint \"test/**/*.ts\"",
     "lint:ts-fix": "eslint \"test/**/*.ts\" --fix",
     "lint": "npm run lint:sol",

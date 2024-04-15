@@ -1,0 +1,5 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+echo "Life is too short to be busy."
+echo "Let's take a break and have a cup of coffee."

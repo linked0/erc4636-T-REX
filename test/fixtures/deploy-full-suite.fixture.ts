@@ -30,6 +30,7 @@ export async function deployFullSuiteFixture() {
     OnchainID.contracts.Identity.bytecode,
     deployer,
   ).deploy(deployer.address, true);
+  const interfaceIdentifier = await ethers.deployContract('InterfaceIdentifier', deployer);
 
   const identityImplementationAuthority = await new ethers.ContractFactory(
     OnchainID.contracts.ImplementationAuthority.abi,
@@ -172,6 +173,22 @@ export async function deployFullSuiteFixture() {
     ),
   );
 
+  const claimForCharlie = {
+    data: ethers.utils.hexlify(ethers.utils.toUtf8Bytes('Some claim public data.')),
+    issuer: claimIssuerContract.address,
+    topic: claimTopics[0],
+    scheme: 1,
+    identity: charlieIdentity.address,
+    signature: '',
+  };
+  claimForCharlie.signature = await claimIssuerSigningKey.signMessage(
+    ethers.utils.arrayify(
+      ethers.utils.keccak256(
+        ethers.utils.defaultAbiCoder.encode(['address', 'uint256', 'bytes'], [claimForCharlie.identity, claimForCharlie.topic, claimForCharlie.data]),
+      ),
+    ),
+  );
+
   await bobIdentity
     .connect(bobWallet)
     .addClaim(claimForBob.topic, claimForBob.scheme, claimForBob.issuer, claimForBob.signature, claimForBob.data, '');
@@ -233,6 +250,10 @@ export async function deployFullSuiteFixture() {
       modularComplianceImplementation,
       tokenImplementation,
     },
+    jay: {
+      interfaceIdentifier,
+      claimForCharlie,
+    }
   };
 }
 

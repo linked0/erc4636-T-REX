@@ -9,12 +9,15 @@ describe('Token - Transfers', () => {
       const {
         suite: { token },
         accounts: { aliceWallet, anotherWallet },
+        jay: { interfaceIdentifier },
       } = await loadFixture(deployFullSuiteFixture);
 
       const tx = await token.connect(aliceWallet).approve(anotherWallet.address, 100);
       await expect(tx).to.emit(token, 'Approval').withArgs(aliceWallet.address, anotherWallet.address, 100);
 
       await expect(token.allowance(aliceWallet.address, anotherWallet.address)).to.eventually.equal(100);
+
+      console.log("interfaceIdentifier: ", await interfaceIdentifier.getERC173Identifier());
     });
   });
 
